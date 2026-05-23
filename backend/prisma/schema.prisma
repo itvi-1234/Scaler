@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  username  String   @unique
+  timezone  String   @default("America/New_York")
+  avatarUrl String?  @map("avatar_url")
+  bio       String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  eventTypes EventType[]
+  schedules  AvailabilitySchedule[]
+
+  @@map("users")
+}
+
+model EventType {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @map("user_id")
+  title           String
+  slug            String   @unique
+  description     String?
+  durationMinutes Int      @map("duration_minutes")
+  location        String?  @default("Google Meet")
+  color           String   @default("#111827")
+  isActive        Boolean  @default(true) @map("is_active")
+  scheduleId      Int?     @map("schedule_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user     User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  schedule AvailabilitySchedule? @relation(fields: [scheduleId], references: [id])
+  bookings Booking[]
+
+  @@map("event_types")
+}
+
+model AvailabilitySchedule {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  name      String
+  timezone  String   @default("America/New_York")
+  isDefault Boolean  @default(false) @map("is_default")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slots      AvailabilitySlot[]
+  eventTypes EventType[]
+
+  @@map("availability_schedules")
+}
+
+model AvailabilitySlot {
+  id         Int    @id @default(autoincrement())
+  scheduleId Int    @map("schedule_id")
+  dayOfWeek  Int    @map("day_of_week") // 0=Sunday, 1=Monday, ..., 6=Saturday
+  startTime  String @map("start_time") // "09:00" format
+  endTime    String @map("end_time")   // "17:00" format
+
+  schedule AvailabilitySchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@map("availability_slots")
+}
+
+model Booking {
+  id          Int      @id @default(autoincrement())
+  eventTypeId Int      @map("event_type_id")
+  bookerName  String   @map("booker_name")
+  bookerEmail String   @map("booker_email")
+  bookerNotes String?  @map("booker_notes")
+  startTime   DateTime @map("start_time")
+  endTime     DateTime @map("end_time")
+  status      String   @default("UPCOMING") // UPCOMING, CANCELLED, COMPLETED
+  timezone    String   @default("America/New_York")
+  uid         String   @unique @default(uuid())
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  eventType EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+
+  @@map("bookings")
+}
