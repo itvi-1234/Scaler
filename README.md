@@ -1,6 +1,9 @@
-# 📅 Scaler — Open Source Scheduling Platform
+# Scaler — Open Source Scheduling Platform
 
 > A full-stack Cal.com-inspired scheduling platform built with **Next.js 15**, **Express.js**, **Prisma ORM**, and **SQLite**.
+
+**Live Demo:** [scaler-iota.vercel.app](https://scaler-iota.vercel.app)
+
 
 ![Scaler Banner](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
 ![Express](https://img.shields.io/badge/Express-4.x-green?style=for-the-badge&logo=express)
